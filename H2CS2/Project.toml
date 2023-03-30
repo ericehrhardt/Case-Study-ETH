@@ -1,0 +1,13 @@
+name = "H2CS2"
+uuid = "c15d5bfc-a239-4c8b-b22a-ec02f83b6c47"
+authors = ["Christoph Funke <csfunke@yahoo.com>"]
+version = "0.1.0"
+
+[deps]
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+Gurobi = "2e9cd046-0924-5485-92f1-d5272153d98b"
+Infiltrator = "5903a43b-9cc3-4c30-8d17-598619ec4e9b"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+XLSX = "fdbf4ff8-1666-58a4-91e7-1b58723a45e0"
