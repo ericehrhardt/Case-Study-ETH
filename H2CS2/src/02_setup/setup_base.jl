@@ -41,10 +41,23 @@ function setup_base(model, inputs::InputStruct)
         q[prod[i], years[y], hours[h]] <= 
             (b[prod[i], years[y]] + a[prod[i], years[y]] - r[prod[i], years[y]])*Producer_Availability(inputs,i,y,h))
 
+    ## set limit on buildable capacity
+    @constraint(model, max_buildable_capacity[i in 1:nprod, y in 1:nyear],
+        a[prod[i], years[y]] <= Max_Capacity(inputs, i, y))
+
     ## set limit on retired capacity
     @constraint(model, max_capacity_retirement[i in prod, y in years],
         r[i, y] <= b[i, y])
 
+    ## built capacity from additions/retirements of previous period
+    if nyear > 1
+        @constraint(model, built_capacity[i in 1:nprod, y in 2:nyear],
+         b[prod[i], years[y]] == b[prod[i], years[y-1]] + a[prod[i], years[y-1]] - r[prod[i], years[y-1]])
+    end
+
+    ## pre-existing capacity before first simulation year
+    @constraint(model, preexisting_capacity[i in 1:nprod],
+        b[prod[i], years[1]] == Existing_Capacity(inputs, i))
 
     @info "Create Objective"
 

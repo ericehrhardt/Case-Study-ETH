@@ -2,6 +2,7 @@ export Cost_VOM
 export Cost_FOM
 export Cost_Invest
 export Producer_Availability
+export Max_Capacity
 
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     
@@ -76,4 +77,33 @@ function Producer_Availability(inputs::InputStruct, idx_prod::Int, idx_year::Int
     change_factor = inputs.time[(idx_year-1)*nhour + idx_hour, scale_column]
 
     return base_availability*change_factor
+end
+
+function Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+    #maximum buildable capacity of a generator for a given year
+
+    #check that correct rows have been identified
+    @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
+    
+    #capital cost only applied in year that power plant is built
+    build_year = inputs.producer[idx_prod, :year]
+    current_year = inputs.years[idx_year]
+
+    if build_year == current_year
+        Amax = inputs.producer[idx_prod,:buildable_capacity]
+    else
+        Amax = 0;
+    end
+
+    return Amax
+end
+
+function Existing_Capacity(inputs::InputStruct, idx_prod::Int)
+    #pre-existing capacity in the first simulation year for each generator
+
+    #check that correct rows have been identified
+    @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
+    existing = inputs.producer[idx_prod, :existing_capacity]
+
+    return existing
 end
