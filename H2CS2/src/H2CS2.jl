@@ -14,8 +14,10 @@ module H2CS2
     ##run necessary code and functions
     include("01_input/input_struct.jl")
     include("01_input/load_inputs.jl")
+    include("01_input/data_handling.jl")
     include("02_setup/create_model.jl")
     include("02_setup/setup_base.jl")
+    include("02_setup/coefficients.jl")
 
 
 end # module H2CS2

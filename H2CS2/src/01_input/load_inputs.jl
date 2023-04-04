@@ -9,8 +9,7 @@ function load_inputs(filename::String)
     inputs.producer = DataFrame(XLSX.readtable(filename, "producer", first_row = 2))
     inputs.transportation = DataFrame(XLSX.readtable(filename, "transportation", first_row = 2))
     inputs.policy = DataFrame(XLSX.readtable(filename, "policy", first_row = 2))
-    inputs.producer_availability = DataFrame(XLSX.readtable(filename, "producer_availability", first_row = 2))
-    inputs.producer_cost = DataFrame(XLSX.readtable(filename, "producer_cost", first_row = 2))
+    inputs.time = DataFrame(XLSX.readtable(filename, "time", first_row = 2))
 
     return inputs
 end

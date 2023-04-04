@@ -7,9 +7,22 @@ function create_model(inputs::InputStruct)
     set_optimizer_attribute(model, "TimeLimit", 100)
     set_optimizer_attribute(model, "Presolve", 0)
 
-    #Define model variables
+    #Define base model
     setup_base(model, inputs)
+
+    #Add regions
+    #setup_regions(model, inputs)
+
+    #Add storage
+    #setup_storage(model,inputs)
+
+    #Add policies
+    #setup_policies(model,inputs)
     
+    #create model objective function
+    @objective(model, Min, model[:obj])
+    print(model)
+    #solve model
 
     return model
 end
