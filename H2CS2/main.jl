@@ -6,14 +6,6 @@ using JuMP
 input_filepath = "./inputs/"
 input_filename = "input_2region_short.xlsx"
 
-
-#Load Inputs -------------------------------------------------------------------
-inputs = load_inputs(input_filepath*input_filename)
-
-#Create Model ------------------------------------------------------------------
-model = create_model(inputs)
-
-#Solve Model -------------------------------------------------------------------
-optimize!(model)
-solution_summary(model)
+#Run H2CS2
+run_H2CS2(input_filepath*input_filename)
 
