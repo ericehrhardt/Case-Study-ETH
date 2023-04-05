@@ -3,6 +3,7 @@ export Cost_FOM
 export Cost_Invest
 export Producer_Availability
 export Max_Capacity
+export Flow_Limit
 
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     
@@ -106,4 +107,12 @@ function Existing_Capacity(inputs::InputStruct, idx_prod::Int)
     existing = inputs.producer[idx_prod, :existing_capacity]
 
     return existing
+end
+
+function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
+    #check that correct edge is identified
+    @assert inputs.transportation[idx_edge,:name] == inputs.edges[idx_edge]
+
+    #identify flow limit
+    return inputs.transportation[idx_edge, :flow_limit]
 end

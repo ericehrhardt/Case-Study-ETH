@@ -18,6 +18,8 @@ module H2CS2
     include("02_setup/create_model.jl")
     include("02_setup/setup_base.jl")
     include("02_setup/coefficients.jl")
+    include("02_setup/setup_regions.jl")
+
 
 
 end # module H2CS2

@@ -11,7 +11,7 @@ function create_model(inputs::InputStruct)
     setup_base(model, inputs)
 
     #Add regions
-    #setup_regions(model, inputs)
+    setup_regions(model, inputs)
 
     #Add storage
     #setup_storage(model,inputs)

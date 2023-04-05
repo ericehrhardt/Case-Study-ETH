@@ -6,6 +6,8 @@ export get_nodes
 export get_num_nodes
 export get_prod
 export get_num_prod
+export get_edges
+export get_num_edges
 export add_discount_rate
 
 function get_years(inputs::InputStruct)
@@ -48,6 +50,18 @@ function get_num_nodes(inputs::InputStruct)
     return length(get_nodes(inputs))
 end
 
+function get_edges(inputs::InputStruct)
+    #number of model regions (=nodes)
+    edges = unique(inputs.transportation.name)
+    @assert length(edges) == nrow(inputs.transportation) "Each edge must have a unique name"
+    return edges
+end
+
+function get_num_edges(inputs::InputStruct)
+    #number of model regions (=nodes)
+    return length(get_edges(inputs))
+end
+
 function add_dimensions(inputs::InputStruct)
     #identify years
     inputs.years = get_years(inputs)
@@ -64,6 +78,10 @@ function add_dimensions(inputs::InputStruct)
     #identify nodes
     inputs.nodes = get_nodes(inputs)
     inputs.nnode = get_num_nodes(inputs)
+
+    #identify edges in transmission network
+    inputs.edges = get_edges(inputs)
+    inputs.nedge = get_num_edges(inputs)
 
     return inputs
 end
