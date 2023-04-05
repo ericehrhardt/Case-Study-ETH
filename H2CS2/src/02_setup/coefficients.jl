@@ -4,6 +4,7 @@ export Cost_Invest
 export Producer_Availability
 export Max_Capacity
 export Flow_Limit
+export Cost_Transport
 
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     
@@ -115,4 +116,24 @@ function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
 
     #identify flow limit
     return inputs.transportation[idx_edge, :flow_limit]
+end
+
+function Cost_Transport(inputs::InputStruct, idx_edge::Int, idx_year::Int)
+    #check that correct edge is identified
+    @assert inputs.transportation[idx_edge,:name] == inputs.edges[idx_edge]
+
+    edge_year = inputs.transportation[idx_edge,:year] #year in which edge is active
+    current_year = inputs.years[idx_year] #current model year
+    
+    #The transportation cost is set to zero when the year under consideration
+    #does not match the year the transport medium is operational. This is a 
+    #trick to ensure that the proper discount factor is applied to the transportation
+    #cost term even though the flow variable is independent of the year.
+    if (edge_year == current_year) 
+        distance_km = inputs.transportation[idx_edge,:distance]
+        cost_per_km = inputs.transportation[idx_edge,:cost]
+        cost_transport = distance_km*cost_per_km
+    else
+        cost_transport = 0
+    end
 end
