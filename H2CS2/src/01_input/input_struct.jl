@@ -8,6 +8,8 @@ mutable struct InputStruct
     transportation::DataFrame #table of transportation data
     policy::DataFrame #table of policy data
     time::DataFrame #table of producer_availability
+    electricity_price::DataFrame#table of electricity prices
+    gas_price::DataFrame#table of natural gas prices
     years::Vector   #list of simulation years
     hours::Vector   #list of hours
     prod::Vector    #list of producers

@@ -12,15 +12,24 @@ function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::I
     #check that correct rows have been identified
     nhour = inputs.nhour
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
-    @assert inputs.hours[idx_hour] == inputs.time[(idx_year-1)*nhour + idx_hour, :hour]
-    @assert inputs.years[idx_year] == inputs.time[(idx_year-1)*nhour + idx_hour, :year]
+    @assert inputs.hours[idx_hour] == inputs.electricity_price[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.years[idx_year] == inputs.electricity_price[(idx_year-1)*nhour + idx_hour, :year]
+    @assert inputs.hours[idx_hour] == inputs.gas_price[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.years[idx_year] == inputs.gas_price[(idx_year-1)*nhour + idx_hour, :year]
 
     #generator variable cost for a given producer, year, and hour
-    base_vom = inputs.producer[idx_prod, :variable_cost]
-    scale_column = inputs.producer[idx_prod, :vom_scale]   
-    change_factor = inputs.time[(idx_year-1)*nhour + idx_hour, scale_column]
+    nonfuel_vom = inputs.producer[idx_prod, :nonfuel_variable_cost]
+    electricity_requirement = inputs.producer[idx_prod, :electricity_requirement]
+    gas_requirement = inputs.producer[idx_prod, :gas_requirement]
+    region = inputs.producer[idx_prod, :region]
+    gas_price = inputs.gas_price[(idx_year-1)*nhour + idx_hour, region]
+    electricity_price = inputs.electricity_price[(idx_year-1)*nhour + idx_hour, region]
 
-    return base_vom*change_factor
+    variable_cost = nonfuel_vom + electricity_requirement*electricity_price +
+        gas_requirement*gas_price
+
+
+    return variable_cost
     
 end
 
