@@ -21,8 +21,6 @@ function create_model(inputs::InputStruct)
     
     #create model objective function
     @objective(model, Min, model[:obj])
-    print(model)
-    #solve model
 
     return model
 end

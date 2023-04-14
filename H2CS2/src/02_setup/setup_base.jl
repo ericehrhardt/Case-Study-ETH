@@ -46,8 +46,8 @@ function setup_base(model, inputs::InputStruct)
         a[prod[i], years[y]] <= Max_Capacity(inputs, i, y))
 
     ## set limit on retired capacity
-    @constraint(model, max_capacity_retirement[i in prod, y in years],
-        r[i, y] <= b[i, y])
+    @constraint(model, max_capacity_retirement[i in 1:nprod, y in 1:nyear],
+        r[prod[i], years[y]] <= b[prod[i], years[y]])
 
     ## built capacity from additions/retirements of previous period
     if nyear > 1

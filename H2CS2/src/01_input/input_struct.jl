@@ -1,3 +1,4 @@
+export InputStruct
 mutable struct InputStruct
 
     #structure to store all input data tables under one object

@@ -1,3 +1,4 @@
+export load_inputs
 function load_inputs(filename::String)
 
     #initialize new data structure for inputs
