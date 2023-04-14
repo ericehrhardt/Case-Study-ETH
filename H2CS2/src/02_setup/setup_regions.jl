@@ -40,7 +40,7 @@ function setup_regions(model, inputs::InputStruct)
     for e in 1:nedge
         for y in 1:nyear
             for h in 1:nhour
-                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Cost_Transport(inputs, e, y) * flow[edges[e], hours[h]])
+                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Weight_Hour(inputs, y, h) * Cost_Transport(inputs, e, y) * flow[edges[e], hours[h]])
             end
         end
     end

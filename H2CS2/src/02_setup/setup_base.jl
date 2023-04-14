@@ -68,7 +68,7 @@ function setup_base(model, inputs::InputStruct)
     for i in 1:nprod
         for y in 1:nyear
             for h in 1:nhour
-                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Cost_VOM(inputs, i,y,h) * q[prod[i], years[y], hours[h]])
+                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Weight_Hour(inputs, y, h)* Cost_VOM(inputs, i,y,h) * q[prod[i], years[y], hours[h]])
             end
         end
     end
@@ -84,9 +84,9 @@ function setup_base(model, inputs::InputStruct)
     #add capital costs 
     for i in 1:nprod
         for y in 1:nyear
-            add_to_expression!(model[:obj], Cost_Invest(inputs, i,y)*a[prod[i], years[y]])
+            add_to_expression!(model[:obj], Discount_Factor(inputs,y)*Cost_Invest(inputs, i,y)*a[prod[i], years[y]])
         end
     end
-
 end
+
 

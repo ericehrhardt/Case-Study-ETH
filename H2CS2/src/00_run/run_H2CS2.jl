@@ -5,7 +5,7 @@ function run_H2CS2(input_filepath::String, output_filepath::String)
 
     #Create Model --------------------------------------------------------------
     model = create_model(inputs)
-    #print(model)
+    print(model)
 
     #Solve Model ---------------------------------------------------------------
     optimize!(model)

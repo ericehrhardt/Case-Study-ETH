@@ -5,6 +5,7 @@ export Producer_Availability
 export Max_Capacity
 export Flow_Limit
 export Cost_Transport
+export Weight_Hour
 
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     
@@ -136,4 +137,17 @@ function Cost_Transport(inputs::InputStruct, idx_edge::Int, idx_year::Int)
     else
         cost_transport = 0
     end
+end
+
+function Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)   
+    #check that correct rows have been identified
+    nhour = inputs.nhour
+    @assert inputs.hours[idx_hour] == inputs.time[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.hours[idx_hour] == inputs.time[(idx_year-1)*nhour + idx_hour, :hour]
+
+    #return weight of hour
+    weight = inputs.time[(idx_year-1)*nhour + idx_hour, :weight]
+    
+    return weight
+    
 end
