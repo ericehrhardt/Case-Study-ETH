@@ -5,14 +5,14 @@ function run_H2CS2(input_filepath::String, output_filepath::String)
 
     #Create Model --------------------------------------------------------------
     model = create_model(inputs)
-    print(model)
+    # print(model)
 
     #Solve Model ---------------------------------------------------------------
     optimize!(model)
     solution_summary(model)
 
     #Process Solutions ---------------------------------------------------------
-    result = get_results(model)
+    result = get_results(model, inputs)
 
     #Save Solution -------------------------------------------------------------
     if isfile(output_filepath)
