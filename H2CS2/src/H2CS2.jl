@@ -7,6 +7,7 @@ module H2CS2
     using DataFrames
     using Infiltrator
     using Gurobi
+    using Documenter
 
     ##run necessary code and functions -----------------------------------------
     #run model

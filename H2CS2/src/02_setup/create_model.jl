@@ -1,4 +1,10 @@
 export create_model
+
+"""
+    create_model(inputs::InputStruct)
+
+Set up the H2CS2 model formulation from given inputs using the JuMP package.
+"""
 function create_model(inputs::InputStruct)
 
     # Create base model and set solver attributes

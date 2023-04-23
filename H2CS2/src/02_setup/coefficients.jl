@@ -3,10 +3,38 @@ export Cost_FOM
 export Cost_Invest
 export Producer_Availability
 export Max_Capacity
+export Existing_Capacity
 export Flow_Limit
 export Cost_Transport
 export Weight_Hour
+export Discount_Factor
 
+@doc raw"""
+    Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
+
+Extracts the variable cost ($C_{i,y,h}^V$) of a specified producer in a given year and hour.
+
+For each producer, the variable cost is calculated as:
+
+```math
+\begin{aligned}
+    C_{i,y,h}^V  =\:& \mathrm{nonfuel\_variable\_cost}\:+\\
+    & \mathrm{electricity\_requirement}*\mathrm{electricity\_price}\:+\\
+    &  \mathrm{gas\_requirement}*\mathrm{gas\_price}
+\end{aligned}
+```
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     
     #check that correct rows have been identified
@@ -33,6 +61,26 @@ function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::I
     
 end
 
+
+@doc raw"""
+    Cost_FOM(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+
+Extracts the annual fixed cost cost ($C_{i,y,h}^F$) of a specified producer in 
+a given year. 
+
+For each producer, the fixed cost is taken directly from the
+producer inputs. We currently assume that annual fixed costs do not change over
+time. 
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
 function Cost_FOM(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -43,6 +91,27 @@ function Cost_FOM(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     return fom
 end
 
+
+@doc raw"""
+    Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+
+Extracts the investment cost ($C_{i,y,h}^I$) of a specified producer in a given year.
+
+The investment cost is only applied during the year in which a producer adds
+capacity. For all other years, the investment cost is zero. When applicable,
+the investment cost is taken directly from the producer inputs.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
 function Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -60,6 +129,28 @@ function Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     return cost_invest
 end
 
+
+@doc raw"""
+    Discount_Factor(inputs::InputStruct, idx_year::Int)
+
+Calculates the discount factor $\delta_y$ for a given year.
+
+The discount factor is currently taken as a single-year discount factor of the 
+following form:
+
+```math
+\delta_y = \frac{1}{(1 + r)^{t-t_0}}
+```
+
+where $r$ is the discount rate, $t$ is the current simulation year, and $t_0$
+is the base simulation year.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_year (Int) ... index of year for which to get cost
+"""
 function Discount_Factor(inputs::InputStruct, idx_year::Int)
     # function to compute time discounting factor in the objective function
 
@@ -74,6 +165,35 @@ function Discount_Factor(inputs::InputStruct, idx_year::Int)
     return discount_factor
 end
 
+
+@doc raw"""
+    Producer_Availability(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
+
+Extracts the producer availability factor ($\Gamma_{i,y,h}$) of a specified producer 
+in a given year and hour.
+
+For each producer, the availability factor is calculated as:
+
+```math
+    \Gamma_{i,y,h}  =\: \mathrm{base\_availability}*\mathrm{scale\_factor}
+```
+
+where the base availability is taken directly from the "producer" inputs and the 
+scale factor is taken for the corresponding column in the "time" inputs. The 
+scale factor varies by year and hour.
+
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
 function Producer_Availability(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     # function to compute time discounting factor in the objective function
 
@@ -91,8 +211,26 @@ function Producer_Availability(inputs::InputStruct, idx_prod::Int, idx_year::Int
     return base_availability*change_factor
 end
 
+
+@doc raw"""
+    Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+
+Extracts the maximum capacity ($A_{i,y}^{max}$) that can be added by a producer in a given year. 
+ 
+By design, each producer can only build capacity in a single year. During that year,
+the max buildable capacity is taken directly from the producer inputs. During 
+every other year, the maximum capacity is set to zero. 
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
 function Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
-    #maximum buildable capacity of a generator for a given year
 
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -110,6 +248,23 @@ function Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     return Amax
 end
 
+@doc raw"""
+    Existing_Capacity(inputs::InputStruct, idx_prod::Int)
+
+Extracts the pre-existing capacity ($B_{i,0}$) for each producer at the beginning
+of the first simulation year. 
+ 
+The pre-existing capacity is taken direclty from the "producer" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
 function Existing_Capacity(inputs::InputStruct, idx_prod::Int)
     #pre-existing capacity in the first simulation year for each generator
 
@@ -120,6 +275,24 @@ function Existing_Capacity(inputs::InputStruct, idx_prod::Int)
     return existing
 end
 
+
+@doc raw"""
+    Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
+
+Extracts the pre-existing capacity ($F_{e,y}^{max}$) for a given transportation route
+and in a given year.
+
+The flow limit is taken directly from the "transportation" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_producer (Int)... index of producer for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
 function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
     #check that correct edge is identified
     @assert inputs.transportation[idx_edge,:name] == inputs.edges[idx_edge]
@@ -128,6 +301,28 @@ function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
     return inputs.transportation[idx_edge, :flow_limit]
 end
 
+
+@doc raw"""
+    Cost_Transport(inputs::InputStruct, idx_edge::Int, idx_year::Int)
+
+Extracts the transportation cost factor ($C_{e,y}^{Trans}$) of along a specified
+transportation route (edge) for a given year.
+
+For each edge, the cost is calculated as:
+
+```math
+    C_{e,y}^{Trans}  =\: \mathrm{distance}*\mathrm{cost\_per\_unit\_distance}
+```
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_edge (Int)... index of transportation route for which to get cost.
+
+idx_year (Int) ... index of year for which to get cost.
+
+"""
 function Cost_Transport(inputs::InputStruct, idx_edge::Int, idx_year::Int)
     #check that correct edge is identified
     @assert inputs.transportation[idx_edge,:name] == inputs.edges[idx_edge]
@@ -148,6 +343,28 @@ function Cost_Transport(inputs::InputStruct, idx_edge::Int, idx_year::Int)
     end
 end
 
+
+@doc raw"""
+    Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)
+
+Extracts the hour weight ($w_h$) of a given hour in a given year.
+
+Each hour in the model is a "representative" for a collection of hours 
+throughout the year. For instance, we may simulate only one hour to represent
+all hours wihtin the month of January. The hour weight gives the number of
+real-life hours represented by a the given simuation hour. It is used to weight 
+the objective function. The hour weights are taken directly from the "time" input
+table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
 function Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)   
     #check that correct rows have been identified
     nhour = inputs.nhour

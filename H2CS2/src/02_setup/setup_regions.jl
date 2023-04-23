@@ -1,3 +1,19 @@
+export setup_regions
+
+@doc raw"""
+    setup_regions(model::Model, inputs::InputStruct)
+Add regional mass balance and hydrogen transportation to the model. 
+
+The following equations are added to the model:
+
+```math
+    Objective \mathrel{+}= \sum_{e \in E} \sum_{y \in Y}\sum_{h \in H} \delta_y w_h C^{Trans}_{e,y} f_{e,y,h}
+```
+Mass balance:
+```math
+    \sum_{i\in P_r} q_{i,y,h} - \sum_{k \in K_r} D_{i,h,r} -\sum_{\substack{e \in E\\ \text{s.t}\: e = (r,j)}} (f_{e,y,h}) + \sum_{\substack{e \in E\\ \text{s.t}\: e = (j,r)} } (f_{e,y,h}) = 0 \qquad\forall r, y, h
+```
+"""
 function setup_regions(model, inputs::InputStruct)
 
     nprod = inputs.nprod; prod = inputs.prod

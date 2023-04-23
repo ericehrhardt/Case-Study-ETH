@@ -2,6 +2,15 @@ export get_node_outflow
 export get_node_production
 export get_node_demand
 
+"""
+    get_node_outflow(model, inputs, n, y, h)
+
+Returns an expression for the net outflow (= transportation of hydrogen away) for
+a given node in a given year and hour.
+
+The expression is in terms of the decision variables and can be used  to set up 
+the mass balance constraints.
+"""
 function get_node_outflow(model, inputs, n, y, h)
     # Returns an expression for hydrogen transported out of node n in year year
     # and hour h.
@@ -35,6 +44,16 @@ function get_node_outflow(model, inputs, n, y, h)
     return net_outflow
 end
 
+
+"""
+    get_node_production(model, inputs, n, y, h)
+
+Returns an expression for the total hydrogen production at a given node in a 
+given year and hour.
+
+The expression is in terms of the decision variables and can be used to set up 
+the mass balance constraints.
+"""
 function get_node_production(model, inputs, n, y, h)
     #Expression for hydrogen produced at node n in year y and hour h
     #Note that n, y, and h are all indices, not names
@@ -51,7 +70,15 @@ function get_node_production(model, inputs, n, y, h)
     return node_production
 end
 
+"""
+    get_node_demand(model, inputs, n, y, h)
 
+Returns an expression for the total hydrogen demand at a given node in a 
+given year and hour.
+
+If there are multiple consumers at a node, the expression will contain the sum
+of consumption over all consumers.
+"""
 function get_node_demand(model, inputs, n, y, h)
     #returns total demand at node n in year y and hour y
     node = inputs.nodes[n]

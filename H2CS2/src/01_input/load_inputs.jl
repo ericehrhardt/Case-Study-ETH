@@ -1,4 +1,14 @@
 export load_inputs
+"""
+    load_inputs(filename)
+
+Load the model input from a specified Excel file.
+
+The inputs are read into a data structure of type InputStruct. Each table (i.e.
+Sheet in the excel notebook) is read in as a new attribute of the data strucutre.
+This allows all data to be easily passed into functions and modified throughout
+the model. The function returns a the data strucutre containting all inputs.
+"""
 function load_inputs(filename::String)
 
     #initialize new data structure for inputs
