@@ -18,7 +18,7 @@ function run_H2CS2(input_filepath::String, output_filepath::String)
 
     #Create Model --------------------------------------------------------------
     model = create_model(inputs)
-    # print(model)
+    #print(model)
 
     #Solve Model ---------------------------------------------------------------
     optimize!(model)
@@ -28,16 +28,7 @@ function run_H2CS2(input_filepath::String, output_filepath::String)
     result = get_results(model, inputs)
 
     #Save Solution -------------------------------------------------------------
-    if isfile(output_filepath)
-        rm(output_filepath)
-    end
-    XLSX.writetable(output_filepath, 
-        "objective" => result.objective, 
-        "quantity" => result.quantity,
-        "capacity" => result.capacity,
-        "flow" => result.flow,
-        "mass_balance" => result.mass_balance)
-
+    save_results(result, output_filepath)
     
     @info "Model complete :)"
 

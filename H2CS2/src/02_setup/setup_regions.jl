@@ -22,7 +22,7 @@ function setup_regions(model, inputs::InputStruct)
     nnode = inputs.nnode; nodes = inputs.nodes
     nedge = inputs.nedge; edges = inputs.edges
     
-
+    
     ## add transport Variables -------------------------------------------------
     @variable(model, flow[e in edges, h in hours],
         start = 0,
