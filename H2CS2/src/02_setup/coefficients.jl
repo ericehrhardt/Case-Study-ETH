@@ -382,7 +382,10 @@ function Emission_factor(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
 
-    #generation emission rate for a given producer and year
-    c02 = inputs.producer[idx_prod, :co2_emission_rate]
-    return c02
+    #generation emission cost for a given producer and year obtained by moltipling specific cost with emission rate of H2
+    cO2_prod_cost = inputs.policy[idx_year, :value]
+    cO2_emission = inputs.producer[idx_prod, :co2_emission_rate]
+    cO2_cost = cO2_prod_cost*cO2_emission
+
+    return cO2_cost
 end
