@@ -377,3 +377,12 @@ function Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)
     return weight
     
 end
+
+function Emission_factor(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
+    #check that correct rows have been identified
+    @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
+
+    #generation emission rate for a given producer and year
+    c02 = inputs.producer[idx_prod, :co2_emission_rate]
+    return c02
+end
