@@ -23,7 +23,7 @@ function load_inputs(filename::String)
     inputs.time = DataFrame(XLSX.readtable(filename, "time", first_row = 2))
     inputs.electricity_price = DataFrame(XLSX.readtable(filename, "electricity_price", first_row = 2))
     inputs.gas_price = DataFrame(XLSX.readtable(filename, "gas_price", first_row = 2))
-
+    inputs.co2_price = DataFrame(XLSX.readtable(filename, "policy", first_row = 2))
 
     return inputs
 end
