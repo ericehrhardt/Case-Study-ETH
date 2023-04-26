@@ -35,7 +35,6 @@ mutable struct InputStruct
     nprod::Int64 #number of generators
     nnode::Int64 #number of generators
     nedge::Int64 #number of transportation routes
-    discount_rate #discount rate
 
 
     function InputStruct()
