@@ -40,6 +40,12 @@ function get_results(model::Model, inputs::InputStruct)
         result.mass_balance = label_indices(inputs, result.mass_balance)
         result.mass_balance = unstack(result.mass_balance, [:region, :year], :hour, :dual)
 
+        #get cost of availability constraints
+        result.availability = extract_dual_as_table(model, :availability, [:producer, :year, :hour, :dual])
+        result.availability = unweight_dual(inputs, result.availability)
+        result.availability = label_indices(inputs, result.availability)
+        result.availability = unstack(result.availability, [:producer, :year], :hour, :dual)
+
     end
 
     return result
@@ -87,6 +93,9 @@ function label_indices(inputs::InputStruct, data::DataFrame)
         data[!,:region] = map(i->inputs.nodes[i], data[!, :region])
     end
 
+    if "producer" in columns
+        data[!,:producer] = map(i->inputs.prod[i], data[!, :producer])
+    end
     return data
 end
 

@@ -7,6 +7,8 @@ mutable struct ResultStruct
     capacity::DataFrame #existing capacities
     flow::DataFrame #transportation flows
     mass_balance::DataFrame # dual variable on the mass balance constraint
+    availability::DataFrame # dual variable on the mass balance constraint
+
 
     function ResultStruct()
         #initialize struct to be empty
