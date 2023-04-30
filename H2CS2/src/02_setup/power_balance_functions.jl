@@ -62,10 +62,10 @@ function get_node_production(model, inputs, n, y, h)
     hour = inputs.hours[h]
     
     #identify all producers at node
-    producers = filter(row -> row.region == node, inputs.producer)
+    producers = filter(row -> row.region == node && row.year <= year, inputs.producer)
 
     #compute net outflow from node
-    node_production = sum(model[:q][i, year, hour] for i in producers.name)
+    node_production = sum(model[:q][prod, year, hour] for prod in producers.name)
 
     return node_production
 end
