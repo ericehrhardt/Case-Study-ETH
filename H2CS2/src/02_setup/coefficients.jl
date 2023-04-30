@@ -377,3 +377,15 @@ function Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)
     return weight
     
 end
+
+function Emission_factor(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
+    #check that correct rows have been identified
+    @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
+
+    #generation emission cost for a given producer and year obtained by moltipling specific cost with emission rate of H2
+    cO2_prod_cost = inputs.policy[idx_year, :value]
+    cO2_emission = inputs.producer[idx_prod, :co2_emission_rate]
+    cO2_cost = cO2_prod_cost*cO2_emission
+
+    return cO2_cost
+end

@@ -194,3 +194,4 @@ function add_discount_rate(inputs)
     inputs.discount_rate = row[1,:value]
     return inputs
 end
+

@@ -24,7 +24,8 @@ module H2CS2
     include("02_setup/coefficients.jl")
     include("02_setup/setup_regions.jl")
     include("02_setup/power_balance_functions.jl")
-
+    include("02_setup/setup_policy.jl")
+    
     #extract solution
     include("03_results/get_results.jl")
     include("03_results/result_struct.jl")
