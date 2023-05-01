@@ -30,9 +30,12 @@ function setup_mass_balance(model::Model, inputs::InputStruct)
     # Production at a given Node
     @expression(model, node_prod[n in 1:nnode, y in 1:nyear, h in 1:nhour], get_node_production(model, inputs, n, y, h))
         
+    # Hydrogen stored at given node
+    @expression(model, node_stor[n in 1:nnode, y in 1:nyear, h in 1:nhour], get_node_storage(model, inputs, n, y, h))
+
     ## add mass balance constraint!
     @constraint(model, mass_balance[n in 1:nnode, y in 1:nyear, h in 1:nhour],
-        model[:node_prod][n, y, h] - model[:node_demand][n, y, h] - model[:node_outflow][n, y, h] == 0.0)
+        model[:node_prod][n, y, h] - model[:node_demand][n, y, h] - model[:node_outflow][n, y, h] - model[:node_stor][n, y, h]  == 0.0)
 
 end
 

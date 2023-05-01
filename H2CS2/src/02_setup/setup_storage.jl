@@ -41,7 +41,6 @@ function setup_storage(model::Model, inputs::InputStruct)
        lower_bound = 0)
 
     # Add Constraints  ---------------------------------------------------------
-    @infiltrate
     ## limit hourly charging quanitity
     @constraint(model, charge_availability[j in 1:nstor, y in 1:nyear, h in 1:nhour], 
         q_charge[stor[j], years[y], hours[h]] <= 

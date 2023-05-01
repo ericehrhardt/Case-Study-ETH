@@ -17,13 +17,17 @@ function create_model(inputs::InputStruct)
     setup_base(model, inputs)
 
     #Add regions
-    setup_regions(model, inputs)
+    setup_transport(model, inputs)
+    #setup_regions(model, inputs)
 
     #Add storage
-    #setup_storage(model,inputs)
+    setup_storage(model,inputs)
 
     #Add policies
     #setup_policy(model,inputs)
+
+    # Add mass balance constraint
+    setup_mass_balance(model, inputs)
     
     #create model objective function
     @objective(model, Min, model[:obj])

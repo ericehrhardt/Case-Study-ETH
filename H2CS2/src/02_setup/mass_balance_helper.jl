@@ -1,6 +1,8 @@
 export get_node_outflow
 export get_node_production
 export get_node_demand
+export get_node_storage
+
 
 """
     get_node_outflow(model, inputs, n, y, h)
@@ -69,6 +71,41 @@ function get_node_production(model, inputs, n, y, h)
 
     return node_production
 end
+
+
+
+"""
+    get_node_storage(model, inputs, n, y, h)
+
+Returns an expression for the net hydrogen stored at a given node in a 
+given year and hour.
+
+Net hydrogen stored is the amount of hydrogen put into storage (i.e. charged)
+minus the amount hydrogen removed from storage (i.e. discharged). The expression 
+is in terms of the decision variables and can be used to set up the mass balance 
+constraints.
+"""
+function get_node_storage(model, inputs, n, y, h)
+    #Expression for hydrogen produced at node n in year y and hour h
+    #Note that n, y, and h are all indices, not names
+    node = inputs.nodes[n]
+    year = inputs.years[y]
+    hour = inputs.hours[h]
+    
+    #identify all producers at node
+    storage = filter(row -> row.region == node && row.year <= year, inputs.storage)
+
+    if nrow(storage) > 0 
+        #compute net outflow from node
+        node_storage = sum(model[:q_charge][stor, year, hour] for stor in storage.name) -
+            sum(model[:q_discharge][stor, year, hour] for stor in storage.name)
+    else
+        node_storage = AffExpr(0)
+    end 
+        
+    return node_storage
+end
+
 
 """
     get_node_demand(model, inputs, n, y, h)
