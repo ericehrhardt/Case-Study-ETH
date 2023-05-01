@@ -92,28 +92,5 @@ function setup_storage(model::Model, inputs::InputStruct)
         s[stor[j], years[y], hours[h]] <=  Max_Storage_Quantity(inputs, j))
 
     # Add to Objective ---------------------------------------------------------
-    #add variable cost
-    for i in 1:nprod
-        for y in 1:nyear
-            for h in 1:nhour
-                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Weight_Hour(inputs, y, h)* Cost_VOM(inputs, i,y,h) * q[prod[i], years[y], hours[h]])
-            end
-        end
-    end
 
-    #add fixed costs
-    for i in 1:nprod
-        for y in 1:nyear
-            add_to_expression!(model[:obj], Discount_Factor(inputs,y) * Cost_FOM(inputs, i,y)*
-            (a[prod[i], years[y]] + b[prod[i], years[y]] - r[prod[i], years[y]]))
-        end
-    end
-
-    #add capital costs 
-    for i in 1:nprod
-        for y in 1:nyear
-            add_to_expression!(model[:obj], Discount_Factor(inputs,y)*Cost_Invest(inputs, i,y)*a[prod[i], years[y]])
-        end
-    end
-end
 end
