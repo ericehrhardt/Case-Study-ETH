@@ -2,12 +2,18 @@ export Cost_VOM
 export Cost_FOM
 export Cost_Invest
 export Producer_Availability
-export Max_Capacity
+export Max_Producer_Capacity
 export Existing_Capacity
+export Existing_Storage_Capacity
 export Flow_Limit
 export Cost_Transport
 export Weight_Hour
 export Discount_Factor
+export Storage_Availability
+export Charge_Efficiency
+export Discharge_Efficiency
+export Self_Discharge_Rate
+export Max_Storage_Quantity
 
 @doc raw"""
     Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
@@ -195,8 +201,6 @@ idx_hour (Int)... index of hour for which to get cost
 
 """
 function Producer_Availability(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
-    # function to compute time discounting factor in the objective function
-
     #check that correct rows have been identified
     nhour = inputs.nhour
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -213,7 +217,51 @@ end
 
 
 @doc raw"""
-    Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+    Storage_Availability(inputs::InputStruct, idx_stor::Int, idx_year::Int, idx_hour::Int)
+
+Extracts the storage availability factor ($\Gamma_{j,y,h}$) of a specified storage unit 
+in a given year and hour.
+
+For each storage unit, the availability factor is calculated as:
+
+```math
+    \Gamma_{j,y,h}  =\: \mathrm{base\_availability}*\mathrm{scale\_factor}
+```
+
+where the base availability is taken directly from the "storage" inputs and the 
+scale factor is taken for the corresponding column in the "time" inputs. The 
+scale factor varies by year and hour.
+
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storag unit for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
+function Storage_Availability(inputs::InputStruct, idx_stor::Int, idx_year::Int, idx_hour::Int)
+    #check that correct rows have been identified
+    nhour = inputs.nhour
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+    @assert inputs.hours[idx_hour] == inputs.time[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.years[idx_year] == inputs.time[(idx_year-1)*nhour + idx_hour, :year]
+
+    #generator variable cost for a given producer, year, and hour
+    base_availability = inputs.storage[idx_stor, :availability_factor]
+    scale_column = inputs.storage[idx_stor, :availability_scale]   
+    change_factor = inputs.time[(idx_year-1)*nhour + idx_hour, scale_column]
+
+    return base_availability*change_factor
+end
+
+
+@doc raw"""
+    Max_Producer_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 
 Extracts the maximum capacity ($A_{i,y}^{max}$) that can be added by a producer in a given year. 
  
@@ -230,7 +278,7 @@ idx_producer (Int)... index of producer for which to get cost
 idx_year (Int) ... index of year for which to get cost
 
 """
-function Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+function Max_Producer_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -249,6 +297,43 @@ function Max_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 end
 
 @doc raw"""
+    Max_Storage_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+
+Extracts the maximum capacity ($A_{i,y}^{max}$) that can be added by a storage unit
+in a given year. 
+ 
+By design, each storage unit can only build capacity in a single year. During that year,
+the max buildable capacity is taken directly from the "storage" inputs. During 
+every other year, the maximum capacity is set to zero. 
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
+function Max_Storage_Capacity(inputs::InputStruct, idx_stor::Int, idx_year::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+    
+    #capital cost only applied in year that power plant is built
+    build_year = inputs.storage[idx_stor, :year]
+    current_year = inputs.years[idx_year]
+
+    if build_year == current_year
+        Amax = inputs.storage[idx_stor,:buildable_capacity]
+    else
+        Amax = 0;
+    end
+
+    return Amax
+end
+
+
+@doc raw"""
     Existing_Capacity(inputs::InputStruct, idx_prod::Int)
 
 Extracts the pre-existing capacity ($B_{i,0}$) for each producer at the beginning
@@ -260,17 +345,38 @@ ARGUMENTS:
 
 inputs (InputStruct) ... data structure containing inputs
 
-idx_producer (Int)... index of producer for which to get cost
-
-idx_year (Int) ... index of year for which to get cost
-
+idx_prod (Int)... index of producer for which to get cost
 """
 function Existing_Capacity(inputs::InputStruct, idx_prod::Int)
-    #pre-existing capacity in the first simulation year for each generator
-
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
+
+    #pre-existing capacity in the first simulation year for each generator
     existing = inputs.producer[idx_prod, :existing_capacity]
+
+    return existing
+end
+
+@doc raw"""
+    Existing_Storage_Capacity(inputs::InputStruct, idx_stor::Int)
+
+Extracts the pre-existing capacity ($B_{i,0}$) for each storage unit at the beginning
+of the first simulation year. 
+ 
+The pre-existing capacity is taken direclty from the "storage" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+"""
+function Existing_Storage_Capacity(inputs::InputStruct, idx_stor::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+    
+    #pre-existing capacity in the first simulation year for each generator
+    existing = inputs.storage[idx_stor, :existing_capacity]
 
     return existing
 end
@@ -377,6 +483,101 @@ function Weight_Hour(inputs::InputStruct, idx_year::Int, idx_hour::Int)
     return weight
     
 end
+
+
+@doc raw"""
+    Charge_Efficiency(inputs::InputStruct, idx_stor::Int)
+
+Extracts the charge efficiency ($\eta^c_{j}$) for each storage unit.
+ 
+The charge efficiency is taken direclty from the "storage" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+"""
+function Charge_Efficiency(inputs::InputStruct, idx_stor::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+
+    #extract the charge efficiency from the storage inputs
+    charge_efficiency = inputs.storage[idx_stor, :charge_efficiency]
+
+    return charge_efficiency
+end
+
+@doc raw"""
+    Discharge_Efficiency(inputs::InputStruct, idx_stor::Int)
+
+Extracts the discharge efficiency ($\eta^d_{j}$) for each storage unit.
+ 
+The discharge efficiency is taken direclty from the "storage" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+"""
+function Discharge_Efficiency(inputs::InputStruct, idx_stor::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+
+    #extract the discharge efficiency from the storage inputs
+    discharge_efficiency = inputs.storage[idx_stor, :discharge_efficiency]
+
+    return discharge_efficiency
+end
+
+@doc raw"""
+    Self_Discharge_Rate(inputs::InputStruct, idx_stor::Int)
+
+Extracts the self-discharge rate ($\lambda_{j}$) for each storage unit.
+ 
+The self-discharge rate is taken direclty from the "storage" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+"""
+function Self_Discharge_Rate(inputs::InputStruct, idx_stor::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+
+    #extract self-discharge rate from the storage inputs
+    self_discharge_rate = inputs.storage[idx_stor, :self_discharge_rate]
+
+    return self_discharge_rate
+end
+
+
+@doc raw"""
+    Max_Storage_Quantitity(inputs::InputStruct, idx_stor::Int)
+
+Extracts the maximum storage quantity ($S_{j}^{max}$) for each storage unit.
+ 
+The storage limit is taken direclty from the "storage" input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+"""
+function Max_Storage_Quantity(inputs::InputStruct, idx_stor::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+
+    #extract self-discharge rate from the storage inputs
+    storage_limit = inputs.storage[idx_stor, :storage_limit]
+
+    return storage_limit
+end
+
 
 function Emission_factor(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
     #check that correct rows have been identified

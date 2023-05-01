@@ -97,7 +97,7 @@ function setup_base(model::Model, inputs::InputStruct)
 
     ## set limit on buildable capacity
     @constraint(model, max_buildable_capacity[i in 1:nprod, y in 1:nyear],
-        a[prod[i], years[y]] <= Max_Capacity(inputs, i, y))
+        a[prod[i], years[y]] <= Max_Producer_Capacity(inputs, i, y))
 
     ## set limit on retired capacity
     @constraint(model, max_capacity_retirement[i in 1:nprod, y in 1:nyear],

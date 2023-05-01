@@ -66,7 +66,7 @@ end
 
 Return a list of all producers in the simulation.
 
-The list of producers is the 'name' column of the producer input file. All names
+The list of producers is from the 'name' column of the producer input file. All names
 in the producer table must therefore be unique in order for the code to properly
 run.
 """
@@ -84,6 +84,31 @@ Return the number of producers in the simulation.
 function get_num_prod(inputs::InputStruct)
     #number of producers
     return length(get_prod(inputs))
+end
+
+"""
+    get_stor(inputs)
+
+Return a list of all storage units in the simulation.
+
+The list of storage units is from the 'name' column of the storage input file. All names
+in the storage table must therefore be unique in order for the code to properly
+run.
+"""
+function get_stor(inputs::InputStruct)
+    #get storage units
+    return unique(inputs.storage.name)
+end
+
+
+"""
+    get_num_stor(inputs)
+
+Return the number of storage units in the simulation.
+"""
+function get_num_stor(inputs::InputStruct)
+    #get number of storage units
+    return length(get_stor(inputs))
 end
 
 
@@ -149,10 +174,10 @@ end
 
 Add the dimensions of the simulation to variables of the input structure.
 
-The dimenstions include the simulation years, hours, producers, nodes, and edges.
-Calculating these from the raw inputs is computationally expensive. It is
-faster to only compute them once and save them in the input structure for 
-repeaed use.
+The dimenstions include the simulation years, hours, producers, storage units,
+nodes, and edges. Calculating these from the raw inputs is computationally 
+expensive. It is faster to only compute them once and save them in the input 
+structure for repeated use.
 """
 function add_dimensions(inputs::InputStruct)
     #identify years
@@ -174,6 +199,10 @@ function add_dimensions(inputs::InputStruct)
     #identify edges in transmission network
     inputs.edges = get_edges(inputs)
     inputs.nedge = get_num_edges(inputs)
+
+    #identify storage units
+    inputs.stor = get_stor(inputs)
+    inputs.nstor = get_num_stor(inputs)
 
     return inputs
 end

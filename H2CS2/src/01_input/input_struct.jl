@@ -20,6 +20,7 @@ mutable struct InputStruct
     universal::DataFrame #table store universal inputs
     consumer::DataFrame #table to store demand data
     producer::DataFrame #table to store producer data
+    storage::DataFrame#table to store data on storage units
     transportation::DataFrame #table of transportation data
     policy::DataFrame #table of policy data
     time::DataFrame #table of producer_availability
@@ -28,12 +29,14 @@ mutable struct InputStruct
     years::Vector   #list of simulation years
     hours::Vector   #list of hours
     prod::Vector    #list of producers
+    stor::Vector    #list of storage units
     nodes::Vector   #list of nodes
     edges::Vector  #list of transportation routes (i.e. edges on transportation graph)
     nyear::Int64 #number of simulation years
     nhour::Int64 #number of siulatio hours per year
     nprod::Int64 #number of generators
-    nnode::Int64 #number of generators
+    nstor::Int64 #number of storage units
+    nnode::Int64 #number of regions
     nedge::Int64 #number of transportation routes
     discount_rate::Float64
 

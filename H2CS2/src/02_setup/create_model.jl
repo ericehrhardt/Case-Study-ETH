@@ -23,7 +23,7 @@ function create_model(inputs::InputStruct)
     #setup_storage(model,inputs)
 
     #Add policies
-    setup_policy(model,inputs)
+    #setup_policy(model,inputs)
     
     #create model objective function
     @objective(model, Min, model[:obj])
