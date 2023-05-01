@@ -3,7 +3,6 @@ export value_or_shadow_price
 
 function get_results(model::Model, inputs::InputStruct)
     @info "Compiling Results"
-    
     #initialize a new results structure
     result = ResultStruct()
 
@@ -13,20 +12,38 @@ function get_results(model::Model, inputs::InputStruct)
     if has_values(model)
         @info "Extracting Primal Variables"
         #quanity produced
-        result.quantity = extract_primal_as_table(model, :q, [:producer, :year, :hour, :quantity])
+        result.quantity_produced = extract_primal_as_table(model, :q, [:producer, :year, :hour, :quantity])
+
+        #quanity stired
+        quantity_charged = extract_primal_as_table(model, :q_charge, [:storage_unit, :year, :hour, :quantity_charged])
+        quantity_discharged = extract_primal_as_table(model, :q_discharge, [:storage_unit, :year, :hour, :quantity_discharged])
+        result.quantity_stored = outerjoin(quantity_charged, quantity_discharged, on = [:storage_unit, :year, :hour], validate=(true, true))
+
         
         #flow
         result.flow = extract_primal_as_table(model, :flow, [:line, :hour, :quantity])
 
-        #built, added, retired capacity
+        #built, added, retired capacity of producers
         built_capacity = extract_primal_as_table(model, :b, [:producer, :year, :built_capacity])
         retired_capacity = extract_primal_as_table(model, :r, [:producer, :year, :retired_capacity])
         added_capacity = extract_primal_as_table(model, :a, [:producer, :year, :added_capacity])
         
-        #join capacities into single table
-        capacity = outerjoin(built_capacity, added_capacity, on = [:producer, :year], validate=(true, true))
-        capacity = outerjoin(capacity, retired_capacity, on = [:producer, :year], validate=(true, true))
-        result.capacity = capacity
+        #join producer capacities into single table
+        production_capacity = outerjoin(built_capacity, added_capacity, on = [:producer, :year], validate=(true, true))
+        production_capacity = outerjoin(production_capacity, retired_capacity, on = [:producer, :year], validate=(true, true))
+        result.production_capacity = production_capacity
+
+
+        #built, added, retired capacity of storage units
+        built_capacity_storage = extract_primal_as_table(model, :b_stor, [:storage_unit, :year, :built_capacity])
+        retired_capacity_storage = extract_primal_as_table(model, :r_stor, [:storage_unit, :year, :retired_capacity])
+        added_capacity_storage = extract_primal_as_table(model, :a_stor, [:storage_unit, :year, :added_capacity])
+        
+        #join storage capacities into single table
+        storage_capacity = outerjoin(built_capacity_storage, added_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
+        storage_capacity = outerjoin(storage_capacity, retired_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
+        result.storage_capacity = storage_capacity
+        
 
     end
 
