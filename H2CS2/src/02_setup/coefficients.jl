@@ -42,7 +42,6 @@ idx_hour (Int)... index of hour for which to get cost
 
 """
 function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
-    
     #check that correct rows have been identified
     nhour = inputs.nhour
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
@@ -61,7 +60,6 @@ function Cost_VOM(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::I
 
     variable_cost = nonfuel_vom + electricity_requirement*electricity_price +
         gas_requirement*gas_price
-
 
     return variable_cost
     
@@ -403,6 +401,10 @@ function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)
     #check that correct edge is identified
     @assert inputs.transportation[idx_edge,:name] == inputs.edges[idx_edge]
 
+    #check that all countries are actually in the model
+    @assert inputs.transportation[idx_edge,:from] in inputs.nodes
+    @assert inputs.transportation[idx_edge,:to] in inputs.nodes
+
     #identify flow limit
     return inputs.transportation[idx_edge, :flow_limit]
 end
@@ -579,7 +581,7 @@ function Max_Storage_Quantity(inputs::InputStruct, idx_stor::Int)
 end
 
 
-function Emission_factor(inputs::InputStruct, idx_prod::Int, idx_year::Int, idx_hour::Int)
+function Emission_Factor(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     #check that correct rows have been identified
     @assert inputs.prod[idx_prod] == inputs.producer[idx_prod,:name]
 
