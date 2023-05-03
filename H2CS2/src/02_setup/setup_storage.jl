@@ -1,5 +1,51 @@
 export setup_storage
+@doc raw"""
+    setup_storage(model::Model, inputs::InputStruct)
 
+Add hydrogen storage to the model.
+
+The following constraints are implmented for storage.
+
+CONSTRAINTS: 
+
+Storage charge availability
+```math
+0 \leq q_{j,y,h}^d \leq \Gamma_{j,y,h} (b_{j,y} + a_{j,y} - r_{j,y}) \qquad\forall j, y , h
+```
+
+Storage discharge availability
+```math
+0 \leq q_{j,y,h}^c \leq \Gamma_{j,y,h} (b_{j,y} + a_{j,y} - r_{j,y}) \qquad\forall j, y , h
+```
+
+
+```math
+\leq a_{j,y} \leq A_{j,y}^{max} \qquad\forall j, y
+```
+
+```math
+0\leq r_{j,y} \leq b_{j,y} \qquad\forall j,y
+```
+
+```math
+b_{j,y} = b_{j,y-1} + a_{j,y-1} -r_{j,y-1} \qquad\forall y>0, j
+```
+
+```math
+b_{j,0} = B_{j,0} \qquad\forall i
+```
+
+```math
+0\leq s_{j,y,h} \leq S_{j}^{max} \qquad \forall j
+```
+
+```math
+s_{j,y,h} = (1- \lambda_{j})^{w_{h}}s_{j,y-1,h} + \eta_j^c  w_h q^{c}_{j,y,h}  - \frac{q_{j,y,h}^d w_h}{\eta_j^{d}} \qquad \forall j,y,h
+```
+
+The last constraint is set to be periodic, so that the state of charge at 
+the end of each year is the same as at the beginning of the year.
+"""
 function setup_storage(model::Model, inputs::InputStruct)
 
     @info "Implementing Storage"
