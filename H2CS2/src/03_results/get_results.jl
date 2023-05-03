@@ -17,8 +17,9 @@ function get_results(model::Model, inputs::InputStruct)
         #quanity stired
         quantity_charged = extract_primal_as_table(model, :q_charge, [:storage_unit, :year, :hour, :quantity_charged])
         quantity_discharged = extract_primal_as_table(model, :q_discharge, [:storage_unit, :year, :hour, :quantity_discharged])
-        result.quantity_stored = outerjoin(quantity_charged, quantity_discharged, on = [:storage_unit, :year, :hour], validate=(true, true))
-
+        if nrow(quantity_charged)>0
+            result.quantity_stored = outerjoin(quantity_charged, quantity_discharged, on = [:storage_unit, :year, :hour], validate=(true, true))
+        end
         
         #flow
         result.flow = extract_primal_as_table(model, :flow, [:line, :hour, :quantity])
@@ -40,9 +41,11 @@ function get_results(model::Model, inputs::InputStruct)
         added_capacity_storage = extract_primal_as_table(model, :a_stor, [:storage_unit, :year, :added_capacity])
         
         #join storage capacities into single table
-        storage_capacity = outerjoin(built_capacity_storage, added_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
-        storage_capacity = outerjoin(storage_capacity, retired_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
-        result.storage_capacity = storage_capacity
+        if nrow(built_capacity_storage) >0
+            storage_capacity = outerjoin(built_capacity_storage, added_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
+            storage_capacity = outerjoin(storage_capacity, retired_capacity_storage, on = [:storage_unit, :year], validate=(true, true))
+            result.storage_capacity = storage_capacity
+        end
         
 
     end

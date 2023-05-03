@@ -14,6 +14,8 @@ mutable struct ResultStruct
 
     function ResultStruct()
         #initialize struct to be empty
-        new()
+        #new()
+        df = DataFrame(x = [], y = String[])
+        new(df, df, df, df, df, df, df, df)
     end
 end
