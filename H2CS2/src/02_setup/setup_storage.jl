@@ -45,6 +45,9 @@ s_{j,y,h} = (1- \lambda_{j})^{w_{h}}s_{j,y-1,h} + \eta_j^c  w_h q^{c}_{j,y,h}  -
 
 The last constraint is set to be periodic, so that the state of charge at 
 the end of each year is the same as at the beginning of the year.
+
+
+
 """
 function setup_storage(model::Model, inputs::InputStruct)
 
@@ -137,5 +140,28 @@ function setup_storage(model::Model, inputs::InputStruct)
         s[stor[j], years[y], hours[h]] <=  Max_Storage_Quantity(inputs, j))
 
     # Add to Objective ---------------------------------------------------------
+    
+    #add variable cost
+    for j in 1:nstor
+        for y in 1:nyear
+            for h in 1:nhour
+                add_to_expression!(model[:obj], Discount_Factor(inputs,y)* Weight_Hour(inputs, y, h)*Cost_VOM_Storage(inputs, j,y,h) * q_charge[stor[j], years[y], hours[h]])
+            end
+        end
+    end
 
+    #add fixed costs
+    for j in 1:nstor
+        for y in 1:nyear
+            add_to_expression!(model[:obj], Discount_Factor(inputs,y) * Cost_FOM_Storage(inputs, j,y)*
+            (a_stor[stor[j], years[y]] + b_stor[stor[j], years[y]] - r_stor[stor[j], years[y]]))
+        end
+    end
+
+    #add capital costs 
+    for j in 1:nstor
+        for y in 1:nyear
+            add_to_expression!(model[:obj], Discount_Factor(inputs,y)*Cost_Invest_Storage(inputs, j,y)*a_stor[stor[j], years[y]])
+        end
+    end
 end

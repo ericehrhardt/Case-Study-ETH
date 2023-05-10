@@ -1,4 +1,5 @@
 export Cost_VOM
+export Cost_VOM_Storage
 export Cost_FOM
 export Cost_Invest
 export Producer_Availability
@@ -67,6 +68,52 @@ end
 
 
 @doc raw"""
+    Cost_VOM_Storage(inputs::InputStruct, idx_stor::Int, idx_year::Int, idx_hour::Int)
+
+Extracts the variable cost ($C_{j,y,h}^V$) of a specified storage unit in a given year and hour.
+
+For each storage unit, the variable cost is taken directly from the storage input table.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+idx_hour (Int)... index of hour for which to get cost
+
+"""
+function Cost_VOM_Storage(inputs::InputStruct, idx_stor::Int, idx_year::Int, idx_hour::Int)
+    
+    #check that correct rows have been identified
+    nhour = inputs.nhour
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+    @assert inputs.hours[idx_hour] == inputs.electricity_price[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.years[idx_year] == inputs.electricity_price[(idx_year-1)*nhour + idx_hour, :year]
+    @assert inputs.hours[idx_hour] == inputs.gas_price[(idx_year-1)*nhour + idx_hour, :hour]
+    @assert inputs.years[idx_year] == inputs.gas_price[(idx_year-1)*nhour + idx_hour, :year]
+
+    #generator variable cost for a given producer, year, and hour
+    nonfuel_vom = inputs.storage[idx_stor, :nonfuel_variable_cost]
+    electricity_requirement = inputs.storage[idx_stor, :electricity_requirement]
+    gas_requirement = inputs.storage[idx_stor, :gas_requirement]
+
+    #get electricity and gas prices
+    region = inputs.storage[idx_stor, :region]
+    gas_price = inputs.gas_price[(idx_year-1)*nhour + idx_hour, region]
+    electricity_price = inputs.electricity_price[(idx_year-1)*nhour + idx_hour, region]
+
+    variable_cost = nonfuel_vom + electricity_requirement*electricity_price +
+        gas_requirement*gas_price
+
+    return variable_cost
+    
+end
+
+
+@doc raw"""
     Cost_FOM(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 
 Extracts the annual fixed cost cost ($C_{i,y,h}^F$) of a specified producer in 
@@ -95,6 +142,35 @@ function Cost_FOM(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     return fom
 end
 
+@doc raw"""
+    Cost_FOM_Storage(inputs::InputStruct, idx_stor::Int, idx_year::Int)
+
+Extracts the annual fixed cost cost ($C_{j,y,h}^F$) of a specified storage unit in 
+a given year. 
+
+For each storage unit, the fixed cost is taken directly from the
+storage inputs. We currently assume that annual fixed costs do not change over
+time. 
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+
+"""
+function Cost_FOM_Storage(inputs::InputStruct, idx_stor::Int, idx_year::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+
+    #generator fixed cost for a given producer and year
+    fom = inputs.storage[idx_stor, :fixed_cost]
+    
+    return fom
+end
+
 
 @doc raw"""
     Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
@@ -112,9 +188,6 @@ inputs (InputStruct) ... data structure containing inputs
 idx_producer (Int)... index of producer for which to get cost
 
 idx_year (Int) ... index of year for which to get cost
-
-idx_hour (Int)... index of hour for which to get cost
-
 """
 function Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
     #check that correct rows have been identified
@@ -132,6 +205,42 @@ function Cost_Invest(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 
     return cost_invest
 end
+
+@doc raw"""
+    Cost_Invest_Storage(inputs::InputStruct, idx_prod::Int, idx_year::Int)
+
+Extracts the investment cost ($C_{j,y,h}^I$) of a specified storage unit in a given year.
+
+The investment cost is only applied during the year in which a storage unit adds
+capacity. For all other years, the investment cost is zero. When applicable,
+the investment cost is taken directly from the storage inputs.
+
+ARGUMENTS:
+
+inputs (InputStruct) ... data structure containing inputs
+
+idx_stor (Int)... index of storage unit for which to get cost
+
+idx_year (Int) ... index of year for which to get cost
+"""
+function Cost_Invest_Storage(inputs::InputStruct, idx_stor::Int, idx_year::Int)
+    #check that correct rows have been identified
+    @assert inputs.stor[idx_stor] == inputs.storage[idx_stor,:name]
+    
+    #capital cost only applied in year that power plant is built
+    build_year = inputs.storage[idx_stor, :year]
+    current_year = inputs.years[idx_year]
+
+    if build_year == current_year
+        cost_invest = inputs.storage[idx_stor,:annualized_investment_cost]
+    else
+        cost_invest = 0;
+    end
+
+    return cost_invest
+end
+
+
 
 
 @doc raw"""
