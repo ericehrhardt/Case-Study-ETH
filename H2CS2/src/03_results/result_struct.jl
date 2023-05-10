@@ -6,6 +6,7 @@ mutable struct ResultStruct
     quantity_produced::DataFrame #quantities produced
     production_capacity::DataFrame #production capacities
     quantity_stored::DataFrame #quantities produced
+    storage_level::DataFrame#how much hydrogen is stored
     storage_capacity::DataFrame #production capacities
     flow::DataFrame #transportation flows
     mass_balance::DataFrame # dual variable on the mass balance constraint

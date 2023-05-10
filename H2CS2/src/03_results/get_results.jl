@@ -34,6 +34,8 @@ function get_results(model::Model, inputs::InputStruct)
         production_capacity = outerjoin(production_capacity, retired_capacity, on = [:producer, :year], validate=(true, true))
         result.production_capacity = production_capacity
 
+        #storage level
+        result.storage_level = extract_primal_as_table(model, :s, [:storage_unit, :year, :hour, :kg_stored])
 
         #built, added, retired capacity of storage units
         built_capacity_storage = extract_primal_as_table(model, :b_stor, [:storage_unit, :year, :built_capacity])
