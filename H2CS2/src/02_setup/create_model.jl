@@ -13,6 +13,9 @@ function create_model(inputs::InputStruct)
     set_optimizer_attribute(model, "TimeLimit", 100)
     set_optimizer_attribute(model, "Presolve", 0)
 
+    #Duplicate producers to get cost spread
+    inputs = spread_producers(inputs)
+
     #Define base model
     setup_base(model, inputs)
 

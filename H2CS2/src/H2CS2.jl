@@ -8,6 +8,9 @@ module H2CS2
     using Infiltrator
     using Gurobi
     using Documenter
+    import StatsFuns: norminvcdf
+    import Base: repeat, cumsum
+
 
     ##run necessary code and functions -----------------------------------------
     #run model
@@ -27,9 +30,8 @@ module H2CS2
     include("02_setup/setup_policy.jl")
     include("02_setup/setup_storage.jl")
     include("02_setup/setup_mass_balance.jl")
-
-
-    
+    include("02_setup/spread_producers.jl")
+  
     #extract solution
     include("03_results/get_results.jl")
     include("03_results/result_struct.jl")
