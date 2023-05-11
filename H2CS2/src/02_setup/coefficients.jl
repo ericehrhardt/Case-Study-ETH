@@ -1,9 +1,12 @@
 export Cost_VOM
 export Cost_VOM_Storage
 export Cost_FOM
+export Cost_FOM_Storage
 export Cost_Invest
+export Cost_Invest_Storage
 export Producer_Availability
 export Max_Producer_Capacity
+export Max_Storage_Capacity
 export Existing_Capacity
 export Existing_Storage_Capacity
 export Flow_Limit
@@ -72,7 +75,15 @@ end
 
 Extracts the variable cost ($C_{j,y,h}^V$) of a specified storage unit in a given year and hour.
 
-For each storage unit, the variable cost is taken directly from the storage input table.
+For each storage unit, the variable cost is calculated as:
+
+```math
+\begin{aligned}
+    C_{j,y,h}^V  =\:& \mathrm{nonfuel\_variable\_cost}\:+\\
+    & \mathrm{electricity\_requirement}*\mathrm{electricity\_price}\:+\\
+    &  \mathrm{gas\_requirement}*\mathrm{gas\_price}
+\end{aligned}
+```
 
 ARGUMENTS:
 
@@ -406,7 +417,7 @@ end
 @doc raw"""
     Max_Storage_Capacity(inputs::InputStruct, idx_prod::Int, idx_year::Int)
 
-Extracts the maximum capacity ($A_{i,y}^{max}$) that can be added by a storage unit
+Extracts the maximum capacity ($A_{j,y}^{max}$) that can be added by a storage unit
 in a given year. 
  
 By design, each storage unit can only build capacity in a single year. During that year,
@@ -467,7 +478,7 @@ end
 @doc raw"""
     Existing_Storage_Capacity(inputs::InputStruct, idx_stor::Int)
 
-Extracts the pre-existing capacity ($B_{i,0}$) for each storage unit at the beginning
+Extracts the pre-existing capacity ($B_{j,0}$) for each storage unit at the beginning
 of the first simulation year. 
  
 The pre-existing capacity is taken direclty from the "storage" input table.
@@ -495,15 +506,17 @@ end
 Extracts the pre-existing capacity ($F_{e,y}^{max}$) for a given transportation route
 and in a given year.
 
-The flow limit is taken directly from the "transportation" input table.
+The flow limit is taken directly from the "transportation" input table. Note that each
+edge on the graph is active for only a single year. Hence, the flow limit function
+does not depend on the year.
 
 ARGUMENTS:
 
 inputs (InputStruct) ... data structure containing inputs
 
-idx_producer (Int)... index of producer for which to get cost
+idx_edge (Int)... index of edge for which to get the flow limit
 
-idx_year (Int) ... index of year for which to get cost
+idx_hour (Int) ... index of hour for which to get the flow limit
 
 """
 function Flow_Limit(inputs::InputStruct, idx_edge::Int, idx_hour::Int)

@@ -1,6 +1,18 @@
 export setup_policy
 
-# add emission variable costs
+@doc raw"""
+    setup_policy(model::Model, inputs::InputStruct) 
+    
+This function modifies the base model by adding a carbon tax.
+
+The carbon tax is implemented as a variable production cost in the objective function. In 
+the future, this function could be expanded to allow for more complex policies.
+
+
+```math
+    Objective \mathrel{+}= \sum_{i \in P}\sum_{y \in Y} \sum_{h \in H} \delta_y w_h \tau_{CO_2} q_{i,y,h} \epsilon_{i}
+```
+"""
 function setup_policy(model::Model, inputs::InputStruct)
     
     inputs = add_dimensions(inputs)

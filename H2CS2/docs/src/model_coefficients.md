@@ -1,7 +1,7 @@
 Model Coefficients
 ===================
 
-Each model coefficient its own function that reads the coefficient values from the input data. All model functions beginning with capital letters are such coefficients. The code for all of the coefficient functions is contained in the **coefficients.jl** file.
+Each model coefficient is defined through a function that reads the coefficient value from the input data. All coefficient functions have names beginning with capital letters. The code for all of the coefficients is contained in the **coefficients.jl** file.
 
 In this page, we proviide documentation for each of the coefficient functions. The documentation for each coefficient specifies exactly how the coefficient values are calculated from the input data. 
 
@@ -10,7 +10,15 @@ In this page, we proviide documentation for each of the coefficient functions. T
 ```
 
 ```@docs
+    Cost_VOM_Storage
+```
+
+```@docs
     Cost_FOM
+```
+
+```@docs
+Cost_FOM_Storage
 ```
 
 ```@docs
@@ -18,15 +26,31 @@ In this page, we proviide documentation for each of the coefficient functions. T
 ```
 
 ```@docs
+    Cost_Invest_Storage
+```
+
+```@docs
     Producer_Availability
 ```
 
 ```@docs
-    Max_Capacity
+    Max_Producer_Capacity
+```
+
+```@docs
+    Max_Storage_Capacity
+```
+
+```@docs
+    Max_Storage_Quantity
 ```
 
 ```@docs
     Existing_Capacity
+```
+
+```@docs
+    Existing_Storage_Capacity
 ```
 
 ```@docs
@@ -35,6 +59,18 @@ In this page, we proviide documentation for each of the coefficient functions. T
 
 ```@docs
     Cost_Transport
+```
+
+```@docs
+    Discharge_Efficiency
+```
+
+```@docs
+    Charge_Efficiency
+```
+
+```@docs
+    Self_Discharge_Rate
 ```
 
 ```@docs

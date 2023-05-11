@@ -14,32 +14,30 @@ The model is programed as a package containing a series of functions and data
 structures which can be loaded and utilized in standard Julia code. The 
 following steps will install and activate the model under this setup.
 
-1. Clone the git repository 
+1\. Clone the git repository 
 
 ```julia
 git clone https://github.com/ericehrhardt/Case-Study-ETH.git
 ```
-2. From inside the project directory, navigate into the folder H2CS2
+2\. From inside the project directory, navigate into the folder H2CS2
 
 ```julia
 cd H2CS2
 ```
 
-3. Enter into to package environment. If done correctly, the termial should now turn into a julia promt.
+3\. Enter into to package environment. If done correctly, the termial should now turn into a julia promt.
 
 ```julia
 julia --project=.
 ``` 
-4. Type ']' to enter Julia's package manager. If steps 1-3 are properly executed,
-the prompt should display: (H2CS2) pkg>. From the package manager, type 'instantiate'
-to install all required packages and dependencies for the model.
+4\. Type ']' to enter Julia's package manager. If steps 1-3 are properly executed, the prompt should display: (H2CS2) pkg>. From the package manager, type 'instantiate' to install all required packages and dependencies for the model.
 
 ```julia
 instantiate
 ```
 Exit the package manager by pressing backspace until the "julia>" prompt returns.
 
-5. Run the model by executing:
+5\. Run the model by executing:
 ```julia
 include("main.jl")
 ```
