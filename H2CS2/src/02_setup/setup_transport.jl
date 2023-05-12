@@ -2,13 +2,19 @@ export setup_transport
 
 @doc raw"""
     setup_transport(model::Model, inputs::InputStruct)
-Add regional transportation to the model. 
+This function modifies the base model by adding regional transportation.
 
 The following equations are added to the model:
 
 ```math
     Objective \mathrel{+}= \sum_{e \in E} \sum_{y \in Y}\sum_{h \in H} \delta_y w_h C^{Trans}_{e,y} f_{e,y,h}
 ```
+
+Flow limits:
+```math
+    0 \leq f_{r,j,y,h} \leq F_{r,j,y}^{max}\qquad \forall r,j,y,h
+```
+
 """
 function setup_transport(model::Model, inputs::InputStruct)
 

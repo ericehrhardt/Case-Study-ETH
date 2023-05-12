@@ -2,13 +2,19 @@ export setup_mass_balance
 
 @doc raw"""
     setup_mass_balance(model::Model, inputs::InputStruct)
-Add regional mass balance constraints. 
 
-The following equations are added to the model:
+This function modifies the model by adding regional mass balance constraints 
+
+The added constraint is shown below. In the constraint formulation, $P_r$, $S_r$,
+and $K_r$ represent the producers, storage units, and consumers that are located 
+in region $r$.
 
 Mass balance:
 ```math
-    \sum_{i\in P_r} q_{i,y,h} - \sum_{k \in K_r} D_{i,h,r} -\sum_{\substack{e \in E\\ \text{s.t}\: e = (r,j)}} (f_{e,y,h}) + \sum_{\substack{e \in E\\ \text{s.t}\: e = (j,r)} } (f_{e,y,h}) = 0 \qquad\forall r, y, h
+\begin{aligned}
+    0 =&\sum_{i\in P_r} q_{i,y,h} + \sum_{j\in S_r} (q_{j,y,h}^d-q_{j,y,h}^c)\\
+    & - \sum_{k \in K_r} D_{i,h,r} -\sum_{\substack{e \in E\\ \text{s.t}\: e = (r,j)}} (f_{e,y,h}) + \sum_{\substack{e \in E\\ \text{s.t}\: e = (j,r)} } (f_{e,y,h}) \qquad\forall r, y, h
+\end{aligned}
 ```
 """
 function setup_mass_balance(model::Model, inputs::InputStruct)

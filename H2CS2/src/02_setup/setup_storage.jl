@@ -2,43 +2,68 @@ export setup_storage
 @doc raw"""
     setup_storage(model::Model, inputs::InputStruct)
 
-Add hydrogen storage to the model.
+This function modifies the model created by "setup_base" in order to add storage units to the model.
 
-The following constraints are implmented for storage.
+These units store energy within a given simulation year. The storage levels
+at the beginning of the year are optimized by the model. Each storage resevoir may
+thus begin the year either full, empty, or anywhere in between. At the end of each 
+year, the storge unit must return to the same level as at the beginning.
 
-CONSTRAINTS: 
+Storage units have two different types of capacity. The first, henceforth refered to as
+charge/discharge capacity, indicates the rate at which hydrogen can be added or removed 
+from the resevoir. This capacity is analagous to the "power capacity" of battery storage
+systems. In our model, we determine this capacity endogenously, meaning that the model can
+choose how much to build or retire. The second capacity, henceforth called the storage 
+capacity, indicates the total quantity of hydrogen that can be held in a given storage unit.
+This is analagous to the "energy capacity" of battery storage systems. In our model, the 
+storage capacity is an exogenous input parameter.
 
-Storage charge availability
+To implement storage, we make the following modifications to the model:
+
 ```math
-0 \leq q_{j,y,h}^d \leq \Gamma_{j,y,h} (b_{j,y} + a_{j,y} - r_{j,y}) \qquad\forall j, y , h
+\begin{aligned}
+    Objective \mathrel{+}=&\sum_{j \in S} \sum_{y \in Y } \delta_y C_{j,y}^I a_{j,y}+
+    \sum_{j \in S}\sum_{y \in Y} \delta_y C_{j,y}^F (b_{j,y} + a_{j,y} - r_{j,y}) +\\
+    &\sum_{j \in S}\sum_{y \in Y} \sum_{h \in H} \delta_y w_h C^V_{j,y,h} q_{i,y,h}^c 
+\end{aligned}
 ```
 
-Storage discharge availability
+Storage charge availability
 ```math
 0 \leq q_{j,y,h}^c \leq \Gamma_{j,y,h} (b_{j,y} + a_{j,y} - r_{j,y}) \qquad\forall j, y , h
 ```
 
-
+Storage discharge availability
 ```math
-\leq a_{j,y} \leq A_{j,y}^{max} \qquad\forall j, y
+0 \leq q_{j,y,h}^d \leq \Gamma_{j,y,h} (b_{j,y} + a_{j,y} - r_{j,y}) \qquad\forall j, y , h
 ```
 
+Added charge/discharge capacity restrictions
+```math
+0 \leq a_{j,y} \leq A_{j,y}^{max} \qquad\forall j, y
+```
+
+Retired capacity restrictions
 ```math
 0\leq r_{j,y} \leq b_{j,y} \qquad\forall j,y
 ```
 
+Annual capacity transfers
 ```math
 b_{j,y} = b_{j,y-1} + a_{j,y-1} -r_{j,y-1} \qquad\forall y>0, j
 ```
 
+Initial charge/discharge capacity
 ```math
 b_{j,0} = B_{j,0} \qquad\forall i
 ```
 
+Maximum storage capacity
 ```math
 0\leq s_{j,y,h} \leq S_{j}^{max} \qquad \forall j
 ```
 
+Storage levels after charging and discharging
 ```math
 s_{j,y,h} = (1- \lambda_{j})^{w_{h}}s_{j,y-1,h} + \eta_j^c  w_h q^{c}_{j,y,h}  - \frac{q_{j,y,h}^d w_h}{\eta_j^{d}} \qquad \forall j,y,h
 ```

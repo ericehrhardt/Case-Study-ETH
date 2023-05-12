@@ -39,12 +39,6 @@ Retired capacity restrictions:
   0\leq r_{i,y} \leq b_{i,y} \qquad\forall i,y
 ```
 
-
-Flow limits:
-```math
-    0 \leq f_{r,j,y,h} \leq F_{r,j,y}^{max}\qquad \forall r,j,y,h
-```
-
 Annual capacity transfers:
 ```math
    b_{i,y} = b_{i,y-1} + a_{i,y-1} -r_{i,y-1} \qquad\forall y>0, i
