@@ -383,9 +383,16 @@ end
 
 Extracts the maximum capacity ($A_{i,y}^{max}$) that can be added by a producer in a given year. 
  
-By design, each producer can only build capacity in a single year. During that year,
+By design, each producer can only build capacity in a single year. This "build year"
+is specified by the "year" column of the producer inputs.  During that year,
 the max buildable capacity is taken directly from the producer inputs. During 
-every other year, the maximum capacity is set to zero. 
+every other year, the maximum buildable capacity is set to zero. 
+
+Capacity expansion in mulitple years can be incorporated by creating a new producer
+for each simulation year. For instance, once could create a "electrolyzer_2030",
+which can be built in 2030 and an "electrolyzer_2040", which can be built in 2040.
+This would allow the model to build capacity in both years. 
+
 
 ARGUMENTS:
 
@@ -420,9 +427,15 @@ end
 Extracts the maximum capacity ($A_{j,y}^{max}$) that can be added by a storage unit
 in a given year. 
  
-By design, each storage unit can only build capacity in a single year. During that year,
-the max buildable capacity is taken directly from the "storage" inputs. During 
-every other year, the maximum capacity is set to zero. 
+By design, each storage unit can only build capacity in a single year. This "build year"
+is specified by the "year" column of the storage inputs.  During that year,
+the max buildable capacity is taken directly from the storage inputs. During 
+every other year, the maximum buildable capacity is set to zero. 
+
+Capacity expansion in mulitple years can be incorporated by creating a new storage unit
+for each simulation year. For instance, once could create a "salt_caverns_2030",
+which can be built in 2030 and an "salt_caverns_2040", which can be built in 2040.
+This would allow the model to build capacity in both years. 
 
 ARGUMENTS:
 
@@ -581,7 +594,7 @@ Extracts the hour weight ($w_h$) of a given hour in a given year.
 
 Each hour in the model is a "representative" for a collection of hours 
 throughout the year. For instance, we may simulate only one hour to represent
-all hours wihtin the month of January. The hour weight gives the number of
+all hours witin the month of January. The hour weight gives the number of
 real-life hours represented by a the given simuation hour. It is used to weight 
 the objective function. The hour weights are taken directly from the "time" input
 table.
@@ -614,7 +627,7 @@ end
 
 Extracts the charge efficiency ($\eta^c_{j}$) for each storage unit.
  
-The charge efficiency is taken direclty from the "storage" input table.
+The charge efficiency is taken directly from the "storage" input table.
 
 ARGUMENTS:
 
@@ -637,7 +650,7 @@ end
 
 Extracts the discharge efficiency ($\eta^d_{j}$) for each storage unit.
  
-The discharge efficiency is taken direclty from the "storage" input table.
+The discharge efficiency is taken directly from the "storage" input table.
 
 ARGUMENTS:
 
